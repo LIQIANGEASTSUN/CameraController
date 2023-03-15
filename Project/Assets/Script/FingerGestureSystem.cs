@@ -7,12 +7,13 @@ public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
 public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
 public delegate void FingerTouchBeginPinch(int fingerId, Vector2 position);
-public delegate void FingerTouchPinch(int fingerId, float pinch);
+public delegate void FingerTouchPinch(int fingerId1, int fingerId2, float pinch);
 public delegate void FingerTouchPinchEnd(int fingerId);
 
 public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 {
     private List<FingerGesture> fingerGesturesList = new List<FingerGesture>();
+    private FingerPinch fingerPinch = new FingerPinch();
     private const int _maxTouchCount = 2;
 
     public FingerTouchDown fingerTouchDown;
@@ -78,10 +79,28 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
                 fingerGesture.AddTouch(touch);
             }
         }
+
+        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+        if (mouseScroll != 0)
+        {
+            fingerPinch.Pinch(1, 2, mouseScroll);
+        }
     }
 
     private void MobileReceiveInput()
     {
+        if (Input.touchCount >= 2)
+        {
+            // 只取前两个
+            Touch touch0 = Input.GetTouch(0);
+            Touch touch1 = Input.GetTouch(1);
+            fingerPinch.SetTouch(touch0, touch1);
+        }
+        else
+        {
+            fingerPinch.Clear();
+        }
+
         for (int i = 0; i < Input.touchCount && i < _maxTouchCount; ++i)
         {
             Touch touch = Input.GetTouch(i);

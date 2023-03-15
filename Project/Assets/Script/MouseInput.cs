@@ -28,18 +28,9 @@ public class MouseInput : MonoBehaviour
         _cameraController.UpdateDragPosition(position, deltaPosition);
     }
 
-    private void Pinch(int fingerId, float pinch)
+    private void Pinch(int fingerId1,  int fingerId2, float pinch)
     {
         _cameraController.UpdatePinch(pinch * m_wheelSpeed);
-    }
-
-    public void UpdatePinch()
-    {
-        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
-        if (mouseScroll != 0)
-        {
-            _cameraController.UpdatePinch(mouseScroll * m_wheelSpeed);
-        }
     }
 }
 
