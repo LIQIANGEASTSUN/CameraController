@@ -59,7 +59,7 @@ public class CameraController
         SetPosition(position);
     }
 
-    public void UpdateDragPosition(Vector3 offsetScreen, Vector3 currentScreen)
+    public void UpdateDragPosition(Vector3 currentScreen, Vector3 offsetScreen)
     {
         Vector3 startScreen = currentScreen - offsetScreen;
         Ray rayStart = Camera.main.ScreenPointToRay(startScreen);

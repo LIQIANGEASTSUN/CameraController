@@ -10,25 +10,27 @@ public class MouseInput : MonoBehaviour
     private void Start()
     {
         _cameraController = new CameraController();
+
+        FingerGestureSystem.GetInstance().fingerTouchDrag += Drag;
+        FingerGestureSystem.GetInstance().fingerTouchPinch += Pinch;
     }
 
     public void Update()
     {
         FingerGestureSystem.GetInstance().Update();
 
-        UpdateDragPosition();
-        UpdatePinch();
+        //UpdateDragPosition();
+        //UpdatePinch();
+    }
 
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            GameObject go = GameObject.Find("1");
-            _cameraController.MoveLookPosition(go.transform.position);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            GameObject go = GameObject.Find("2");
-            _cameraController.MoveLookPosition(go.transform.position);
-        }
+    private void Drag(int fingerId, Vector2 position, Vector2 deltaPosition)
+    {
+        _cameraController.UpdateDragPosition(position, deltaPosition);
+    }
+
+    private void Pinch(int fingerId, float pinch)
+    {
+        _cameraController.UpdatePinch(pinch * m_wheelSpeed);
     }
 
     public void UpdatePinch()
@@ -37,21 +39,6 @@ public class MouseInput : MonoBehaviour
         if (mouseScroll != 0)
         {
             _cameraController.UpdatePinch(mouseScroll * m_wheelSpeed);
-        }
-    }
-
-    void UpdateDragPosition()
-    {
-        if (Input.GetMouseButtonDown(m_mouseLeft))  //如果鼠标点击的 1键
-        {
-            m_lastMousePos = Input.mousePosition;
-        }
-
-        if (Input.GetMouseButton(m_mouseLeft))
-        {
-            Vector3 offset = (Input.mousePosition - m_lastMousePos);
-            _cameraController.UpdateDragPosition(offset, Input.mousePosition);
-            m_lastMousePos = Input.mousePosition;
         }
     }
 }

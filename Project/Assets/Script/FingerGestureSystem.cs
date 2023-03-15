@@ -6,20 +6,25 @@ public delegate void FingerTouchUp(int fingerId, Vector2 position);
 public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
 public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
+public delegate void FingerTouchBeginPinch(int fingerId, Vector2 position);
+public delegate void FingerTouchPinch(int fingerId, float pinch);
+public delegate void FingerTouchPinchEnd(int fingerId);
 
 public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 {
     private List<FingerGesture> fingerGesturesList = new List<FingerGesture>();
+    private const int _maxTouchCount = 2;
 
     public FingerTouchDown fingerTouchDown;
     public FingerTouchUp fingerTouchUp;
     public FingerTouchBeginDrag fingerTouchBeginDrag;
     public FingerTouchDrag fingerTouchDrag;
     public FingerTouchDragEnd fingerTouchDragEnd;
+    public FingerTouchBeginPinch fingerTouchBeginPinch;
+    public FingerTouchPinch fingerTouchPinch;
+    public FingerTouchPinchEnd fingerTouchPinchEnd;
 
-    public FingerGestureSystem()
-    {
-    }
+    public FingerGestureSystem() {    }
 
     public void Update()
     {
@@ -41,43 +46,28 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 
     private void PCReceiveInput()
     {
-        for (int i = 0; i < mouseIds.Length; ++i)
+        foreach(var fingerId in mouseIds)
         {
-            int fingerId = mouseIds[i];
-
-            bool input = false;
             Vector2 deltaPosition = Vector2.zero;
-            TouchPhase touchPhase = TouchPhase.Began;
+            TouchPhase touchPhase = TouchPhase.Canceled;
 
             if (Input.GetMouseButtonDown(fingerId))
             {
-                input = true;
-                deltaPosition = Vector2.zero;
                 touchPhase = TouchPhase.Began;
             }
             else if (Input.GetMouseButton(fingerId))
             {
                 FingerGesture fingerGesture = GetFingerGestureIfNullCreate(fingerId);
-                input = true;
                 Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                deltaPosition = fingerGesture.LastPosition() - mousePosition;
-                if (deltaPosition.sqrMagnitude > 0)
-                {
-                    touchPhase = TouchPhase.Moved;
-                }
-                else
-                {
-                    touchPhase = TouchPhase.Stationary;
-                }
+                deltaPosition = mousePosition - fingerGesture.LastPosition();
+                touchPhase = (deltaPosition.sqrMagnitude > 0) ? TouchPhase.Moved : TouchPhase.Stationary;
             }
             else if (Input.GetMouseButtonUp(fingerId))
             {
-                input = true;
-                deltaPosition = Vector2.zero;
                 touchPhase = TouchPhase.Ended;
             }
 
-            if (input && touchPhase != TouchPhase.Stationary)
+            if (touchPhase != TouchPhase.Canceled)
             {
                 Touch touch = new Touch();
                 touch.fingerId = fingerId;
@@ -92,7 +82,7 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 
     private void MobileReceiveInput()
     {
-        for (int i = 0; i < Input.touchCount; ++i)
+        for (int i = 0; i < Input.touchCount && i < _maxTouchCount; ++i)
         {
             Touch touch = Input.GetTouch(i);
             FingerGesture fingerGesture = GetFingerGestureIfNullCreate(touch.fingerId);
@@ -116,25 +106,20 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 
     private FingerGesture GetFingerGestureIfNullCreate(int fingerId)
     {
-        FingerGesture fingerGesture = GetFingerGesture(fingerId);
-        if (null == fingerGesture)
-        {
-            fingerGesture = new FingerGesture(fingerId);
-            fingerGesturesList.Add(fingerGesture);
-        }
-        return fingerGesture;
-    }
-
-    private FingerGesture GetFingerGesture(int fingerId)
-    {
-        FingerGesture fingerGesture = null;
         for (int i = 0; i < fingerGesturesList.Count; ++i)
         {
             FingerGesture temp = fingerGesturesList[i];
             if (temp.FingerId == fingerId)
             {
-                fingerGesture = temp;
+                return temp;
             }
+        }
+
+        FingerGesture fingerGesture = new FingerGesture(fingerId);
+        fingerGesturesList.Add(fingerGesture);
+        while (fingerGesturesList.Count > 2)
+        {
+            fingerGesturesList.RemoveAt(0);
         }
         return fingerGesture;
     }

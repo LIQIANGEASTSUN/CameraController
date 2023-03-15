@@ -1,72 +1,65 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FingerGesture
 {
-    private int _fingerId;
-    private Touch _lastTouch;
-    private Queue<Touch> _queueTouch = new Queue<Touch>();
-
+    private Touch _touch;
+    private int _touchCount = 0;
     private bool _beginDrag = false;
 
     public FingerGesture(int fingerId)
     {
-        _fingerId = fingerId;
+        _touch = new Touch();
+        _touch.fingerId = fingerId;
+        _touch.phase = TouchPhase.Canceled;
     }
 
     public void AddTouch(Touch touch)
     {
-        if (touch.fingerId == _fingerId)
-        {
-            _queueTouch.Enqueue(touch);
-        }
-        else
-        {
-            Debug.LogError("Different touch:" + touch.fingerId);
-        }
+        _touchCount++;
+        _touch.fingerId = touch.fingerId;
+        _touch.position = touch.position;
+        _touch.deltaPosition = touch.deltaPosition;
+        _touch.phase = touch.phase;
+    }
+
+    public int FingerId
+    {
+        get { return _touch.fingerId; }
     }
 
     public Vector2 LastPosition()
     {
-        return _lastTouch.position;
+        return _touch.position;
     }
 
     public void Execute()
     {
-        if (_queueTouch.Count <= 0)
+        if (_touchCount <= 0)
         {
             return;
         }
 
-        Touch touch = _queueTouch.Dequeue();
-        if (touch.phase == TouchPhase.Began)
+        if (_touch.phase == TouchPhase.Began)
         {
-            Down(touch);
+            Down(_touch);
         }
-        else if (touch.phase == TouchPhase.Moved)
+        else if (_touch.phase == TouchPhase.Moved)
         {
-            Move(touch);
+            Move(_touch);
         }
-        else if (touch.phase == TouchPhase.Stationary)
+        else if (_touch.phase == TouchPhase.Ended)
         {
-
-        }
-        else if (touch.phase == TouchPhase.Ended)
-        {
-            Up(touch);
+            Up(_touch);
         }
 
-        _lastTouch = touch;
+        _touchCount--;
     }
 
     private void Down(Touch touch)
     {
         _beginDrag = false;
         //Debug.LogError("Down");
-        if (null != FingerGestureSystem.GetInstance().fingerTouchDown)
-        {
-            FingerGestureSystem.GetInstance().fingerTouchDown(_fingerId, touch.position);
-        }
+        FingerGestureSystem.GetInstance().fingerTouchDown?.Invoke(touch.fingerId, touch.position);
     }
 
     private void Move(Touch touch)
@@ -75,41 +68,25 @@ public class FingerGesture
         {
             _beginDrag = true;
             //Debug.LogError("BeginDrag");
-            if (null != FingerGestureSystem.GetInstance().fingerTouchBeginDrag)
-            {
-                FingerGestureSystem.GetInstance().fingerTouchBeginDrag(_fingerId, touch.position);
-            }
+            FingerGestureSystem.GetInstance().fingerTouchBeginDrag?.Invoke(touch.fingerId, touch.position);
         }
         else
         {
             //Debug.LogError("Drag:" + touch.position + "    " + touch.deltaPosition);
-            if (null != FingerGestureSystem.GetInstance().fingerTouchDrag)
-            {
-                FingerGestureSystem.GetInstance().fingerTouchDrag(_fingerId, touch.position, touch.deltaPosition);
-            }
+            FingerGestureSystem.GetInstance().fingerTouchDrag?.Invoke(touch.fingerId, touch.position, touch.deltaPosition);
         }
     }
 
     private void Up(Touch touch)
     {
         //Debug.LogError("Up");
-        if (null != FingerGestureSystem.GetInstance().fingerTouchUp)
-        {
-            FingerGestureSystem.GetInstance().fingerTouchUp(_fingerId, touch.position);
-        }
+        FingerGestureSystem.GetInstance().fingerTouchUp?.Invoke(touch.fingerId, touch.position);
+
         if (_beginDrag)
         {
             _beginDrag = false;
             //Debug.LogError("EndDrag");
-            if (null != FingerGestureSystem.GetInstance().fingerTouchDragEnd)
-            {
-                FingerGestureSystem.GetInstance().fingerTouchDragEnd(_fingerId, touch.position);
-            }
+            FingerGestureSystem.GetInstance().fingerTouchDragEnd?.Invoke(touch.fingerId, touch.position);
         }
-    }
-
-    public int FingerId
-    {
-        get { return _fingerId; }
     }
 }
