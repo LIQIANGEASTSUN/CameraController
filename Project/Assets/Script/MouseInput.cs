@@ -14,6 +14,8 @@ public class MouseInput : MonoBehaviour
 
     public void Update()
     {
+        FingerGestureSystem.GetInstance().Update();
+
         UpdateDragPosition();
         UpdatePinch();
 
