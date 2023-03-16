@@ -35,45 +35,37 @@ public class FingerGesture
 
     public void SetTouch(Touch touch)
     {
-
+        _stateMachine.CurrentState.SetTouch(touch);
     }
 
     public void SetTouch(Touch touch0, Touch touch1)
     {
-
-    }
-
-    public int FingerId
-    {
-        get { return _touch.fingerId; }
-    }
-
-    public Vector2 LastPosition()
-    {
-        return _touch.position;
+        _stateMachine.CurrentState.SetTouch(touch0, touch1);
     }
 
     public void Execute()
     {
-        if (_touchCount <= 0)
-        {
-            return;
-        }
+        _stateMachine.OnExecute();
 
-        if (_touch.phase == TouchPhase.Began)
-        {
-            Down(_touch);
-        }
-        else if (_touch.phase == TouchPhase.Moved)
-        {
-            Move(_touch);
-        }
-        else if (_touch.phase == TouchPhase.Ended)
-        {
-            Up(_touch);
-        }
+        //if (_touchCount <= 0)
+        //{
+        //    return;
+        //}
 
-        _touchCount--;
+        //if (_touch.phase == TouchPhase.Began)
+        //{
+        //    Down(_touch);
+        //}
+        //else if (_touch.phase == TouchPhase.Moved)
+        //{
+        //    Move(_touch);
+        //}
+        //else if (_touch.phase == TouchPhase.Ended)
+        //{
+        //    Up(_touch);
+        //}
+
+        //_touchCount--;
     }
 
     private void Down(Touch touch)

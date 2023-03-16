@@ -6,10 +6,14 @@ using UnityEngine;
 
 public class StateBase : IState
 {
-    private StateMachine _stateMachine;
+    protected StateMachine _stateMachine;
     protected int _state;
 
     protected FingerGesture _fingerGesture;
+
+    protected int _touchCount;
+    protected Touch _touch0;
+    protected Touch _touch1;
 
     public StateBase(StateMachine stateMachine, int state, FingerGesture fingerGesture)
     {
@@ -28,12 +32,15 @@ public class StateBase : IState
 
     public virtual void SetTouch(Touch touch)
     {
-
+        _touchCount = 1;
+        _touch0 = touch;
     }
 
     public virtual void SetTouch(Touch touch0, Touch touch1)
     {
-
+        _touchCount = 2;
+        _touch0 = touch0;
+        _touch1 = touch1;
     }
 
     public virtual void OnEnter()

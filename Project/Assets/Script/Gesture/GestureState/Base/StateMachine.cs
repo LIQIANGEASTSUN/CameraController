@@ -49,4 +49,10 @@ public class StateMachine
         }
     }
 
+    public StateBase CurrentState
+    {
+        get { 
+            return _currentState; 
+        }
+    }
 }

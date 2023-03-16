@@ -8,6 +8,18 @@ public class GestureStateNone : StateBase
     {
     }
 
+    public override void SetTouch(Touch touch)
+    {
+        base.SetTouch(touch);
+        _stateMachine.ChangeState((int)GestureStateEnum.Click);
+    }
+
+    public override void SetTouch(Touch touch0, Touch touch1)
+    {
+        base.SetTouch(touch0, touch1);
+        _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
+    }
+
     public override void OnEnter()
     {
         base.OnEnter();

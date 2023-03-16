@@ -3,6 +3,8 @@ using UnityEngine;
 
 public delegate void FingerTouchDown(int fingerId, Vector2 position);
 public delegate void FingerTouchUp(int fingerId, Vector2 position);
+public delegate bool FingerTouchClick(int fingerId, Vector2 position);
+public delegate bool FingerTouchPress(int fingerId, Vector2 position);
 public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
 public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
@@ -18,6 +20,8 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 
     public FingerTouchDown fingerTouchDown;
     public FingerTouchUp fingerTouchUp;
+    public FingerTouchClick fingerTouchClick;
+    public FingerTouchPress fingerTouchPress;
     public FingerTouchBeginDrag fingerTouchBeginDrag;
     public FingerTouchDrag fingerTouchDrag;
     public FingerTouchDragEnd fingerTouchDragEnd;
@@ -45,6 +49,7 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 #endif
     }
 
+    private Vector3 _lastMousePosition = Vector3.zero;
     private void PCReceiveInput()
     {
         foreach(var fingerId in mouseIds)
@@ -55,11 +60,13 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
             if (Input.GetMouseButtonDown(fingerId))
             {
                 touchPhase = TouchPhase.Began;
+                _lastMousePosition = Input.mousePosition;
             }
             else if (Input.GetMouseButton(fingerId))
             {
-                Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                deltaPosition = mousePosition - fingerGesture.LastPosition();
+                Vector3 offset = Input.mousePosition - _lastMousePosition;
+                _lastMousePosition = Input.mousePosition;
+                deltaPosition = new Vector2(offset.x, offset.y);
                 touchPhase = (deltaPosition.sqrMagnitude > 0) ? TouchPhase.Moved : TouchPhase.Stationary;
             }
             else if (Input.GetMouseButtonUp(fingerId))
@@ -99,11 +106,6 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
             Touch touch1 = Input.GetTouch(1);
             fingerGesture.SetTouch(touch0, touch1);
         }
-    }
-
-    public void AddCustomTouch(Touch touch)
-    {
-        fingerGesture.AddTouch(touch);
     }
 
     private void Execute()
