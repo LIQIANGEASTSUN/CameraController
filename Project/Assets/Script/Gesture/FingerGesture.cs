@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditorInternal;
+using UnityEngine;
 
 public class FingerGesture
 {
@@ -6,11 +7,21 @@ public class FingerGesture
     private int _touchCount = 0;
     private bool _beginDrag = false;
 
-    public FingerGesture(int fingerId)
+    private StateMachine _stateMachine;
+
+    public FingerGesture()
     {
         _touch = new Touch();
-        _touch.fingerId = fingerId;
+        _touch.fingerId = -1000;
         _touch.phase = TouchPhase.Canceled;
+
+        _stateMachine = new StateMachine();
+        _stateMachine.AddState(new GestureStateNone(_stateMachine, this));
+        _stateMachine.AddState(new GestureStateClick(_stateMachine, this));
+        _stateMachine.AddState(new GestureStateDrag(_stateMachine, this));
+        _stateMachine.AddState(new GestureStatePinch(_stateMachine, this));
+
+        _stateMachine.ChangeState((int)GestureStateEnum.None);
     }
 
     public void AddTouch(Touch touch)
@@ -20,6 +31,16 @@ public class FingerGesture
         _touch.position = touch.position;
         _touch.deltaPosition = touch.deltaPosition;
         _touch.phase = touch.phase;
+    }
+
+    public void SetTouch(Touch touch)
+    {
+
+    }
+
+    public void SetTouch(Touch touch0, Touch touch1)
+    {
+
     }
 
     public int FingerId
