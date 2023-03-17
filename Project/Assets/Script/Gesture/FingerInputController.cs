@@ -7,7 +7,7 @@ public delegate void FingerTouchClick(int fingerId, Vector2 position);
 public delegate void FingerTouchPress(int fingerId, Vector2 position);
 public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
-public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
+public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition, Vector2 deltaPosition);
 public delegate void FingerTouchBeginPinch(int fingerId1, int fingerId2, float pinch);
 public delegate void FingerTouchPinch(int fingerId1, int fingerId2, float pinch);
 public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pinch);
@@ -142,9 +142,9 @@ public class FingerInputController : SingletonObject<FingerInputController>
         fingerTouchDragEnd -= dragEnd;
     }
 
-    public void NotifyDragEnd(int fingerId, Vector2 pisition)
+    public void NotifyDragEnd(int fingerId, Vector2 pisition, Vector2 deltaPosition)
     {
-        fingerTouchDragEnd?.Invoke(fingerId, pisition);
+        fingerTouchDragEnd?.Invoke(fingerId, pisition, deltaPosition);
     }
 
     public void AddBeginPinch(FingerTouchBeginPinch beginPinch)

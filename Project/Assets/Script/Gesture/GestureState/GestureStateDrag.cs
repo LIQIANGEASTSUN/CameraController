@@ -34,7 +34,8 @@ public class GestureStateDrag : StateBase
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
         {
-            FingerInputController.GetInstance().NotifyDragEnd(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+            Vector2 deltaPosition = _fingerGesture._touch0.position - _lastPosition;
+            FingerInputController.GetInstance().NotifyDragEnd(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, deltaPosition);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
     }

@@ -32,6 +32,7 @@ public class MouseInput : MonoBehaviour
     public void Update()
     {
         FingerInputController.GetInstance().Update();
+        _cameraController.Update();
     }
 
     private void OnGUI()
@@ -51,65 +52,54 @@ public class MouseInput : MonoBehaviour
 
     private void TouchDown(int fingerId, Vector2 position)
     {
-        Debug.LogError("TouchDown:" + fingerId + "    " + position);
         _msgList[0] = "TouchDown:" + fingerId + "    " + position;
     }
 
     private void TouchUp(int fingerId, Vector2 position)
     {
-        Debug.LogError("TouchUp:" + fingerId + "    " + position);
         _msgList[1] = "TouchUp:" + fingerId + "    " + position;
     }
 
     private void TouchClick(int fingerId, Vector2 position)
     {
-        Debug.LogError("TouchClick:" + fingerId + "    " + position);
         _msgList[2] = ("TouchClick:" + fingerId + "    " + position);
     }
 
     private void TouchPress(int fingerId, Vector2 position)
     {
-        //Debug.LogError("TouchPress:" + fingerId + "    " + position);
         _msgList[3] = ("TouchPress:" + fingerId + "    " + position);
     }
 
     private void BeginDrag(int fingerId, Vector2 position)
     {
-        Debug.LogError("BeginDrag:" + fingerId + "    " + position);
         _msgList[4] = ("BeginDrag:" + fingerId + "    " + position);
-
     }
 
     private void Drag(int fingerId, Vector2 position, Vector2 deltaPosition)
     {
-        Debug.LogError("Drag:" + fingerId + "    " + position);
-        _cameraController.UpdateDragPosition(position, deltaPosition);
+        _cameraController.DragPosition(position, deltaPosition);
         _msgList[5] = ("Drag:" + fingerId + "    " + position);
-
     }
 
-    private void EndDrag(int fingerId, Vector2 pisition)
+    private void EndDrag(int fingerId, Vector2 position, Vector2 deltaPosition)
     {
-        Debug.LogError("EndDrag:" + fingerId + "    " + pisition);
-        _msgList[6] = ("EndDrag:" + fingerId + "    " + pisition);
+        _msgList[6] = ("EndDrag:" + fingerId + "    " + position);
+        _cameraController.DragEnd(position, deltaPosition);
     }
 
     private void BeginPinch(int fingerId1, int fingerId2, float pinch)
     {
-        Debug.LogError("BeginPinch:" + fingerId1 + "    " + pinch);
         _msgList[7] = ("BeginPinch:" + fingerId1 + "    " + pinch);
     }
 
     private void Pinch(int fingerId1, int fingerId2, float pinch)
     {
         _cameraController.UpdatePinch(pinch);
-        Debug.LogError("Pinch:" + fingerId1 + "    " + pinch);
         _msgList[8] = ("Pinch:" + fingerId1 + "    " + pinch);
     }
 
     private void EndPinch(int fingerId1, int fingerId2, float pinch)
     {
-        Debug.LogError("EndPinch:" + fingerId1 + "    " + pinch);
         _msgList[9] = ("EndPinch:" + fingerId1 + "    " + pinch);
     }
 }

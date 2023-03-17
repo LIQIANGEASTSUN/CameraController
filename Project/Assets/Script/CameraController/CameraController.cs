@@ -7,6 +7,10 @@ public class CameraController
 
     private float m_fDistanceMin = 6;
     private float m_fDistanceMax = 20;
+
+    private Vector3 _smoothVector = Vector3.zero;
+    private float _smoothTime = 0;
+
     protected Transform cameraTr;
 
     public CameraController()
@@ -53,7 +57,21 @@ public class CameraController
         SetPosition(position);
     }
 
-    public void UpdateDragPosition(Vector3 currentScreen, Vector3 offsetScreen)
+    public void DragPosition(Vector2 currentScreen, Vector2 offsetScreen)
+    {
+        Vector3 offset = DragOffset(currentScreen, offsetScreen);
+        Vector3 position = GetPosition() - offset;
+        SetPosition(position);
+    }
+
+    public void DragEnd(Vector2 currentScreen, Vector2 offsetScreen)
+    {
+        Vector3 offset = DragOffset(currentScreen, offsetScreen);
+        _smoothVector = offset * 0.5f;
+        _smoothTime = 1;
+    }
+
+    public Vector3 DragOffset(Vector2 currentScreen, Vector2 offsetScreen)
     {
         Vector3 startScreen = currentScreen - offsetScreen;
         Ray rayStart = Camera.main.ScreenPointToRay(startScreen);
@@ -65,8 +83,18 @@ public class CameraController
         Vector3 current = GetPosition() + rayCurrent.direction * dist;
 
         Vector3 offset = current - start;
-        Vector3 position = GetPosition() - offset;
-        SetPosition(position);
+        return offset;
+    }
+
+    public void Update()
+    {
+        if(_smoothTime > 0)
+        {
+            _smoothTime -= Time.deltaTime * 2;
+            _smoothTime = Mathf.Clamp(_smoothTime, 0, 1);
+            Vector3 position = GetPosition() - _smoothVector * _smoothTime;
+            SetPosition(position);
+        }
     }
 
     public void MoveLookPosition(Vector3 position)
