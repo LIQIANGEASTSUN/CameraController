@@ -1,22 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GestureStateClick : StateBase
 {
     private Vector2 _downPosition = Vector2.zero;
     public GestureStateClick(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Click, fingerGesture)
     {
-    }
-
-    public override void SetTouch(Touch touch)
-    {
-        base.SetTouch(touch);
-    }
-
-    public override void SetTouch(Touch touch0, Touch touch1)
-    {
-        base.SetTouch(touch0, touch1);
     }
 
     public override void OnEnter()
@@ -65,5 +53,4 @@ public class GestureStateClick : StateBase
     {
         base.OnExit();
     }
-
 }

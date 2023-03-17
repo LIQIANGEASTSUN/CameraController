@@ -42,14 +42,8 @@ public class CameraController
 
     public void UpdatePinch(float pinch)
     {
-        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
-        if (mouseScroll == 0)
-        {
-            return;
-        }
-
         float dist = CameraToLookPositionLength(Forward);
-        m_currentDistance = dist - mouseScroll * m_pinchSpeed;
+        m_currentDistance = dist - pinch * m_pinchSpeed;
         m_currentDistance = Mathf.Clamp(m_currentDistance, m_fDistanceMin, m_fDistanceMax);
 
         //摄像机中心地面坐标

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using UnityEngine;
 
 public delegate void FingerTouchDown(int fingerId, Vector2 position);
@@ -15,8 +16,6 @@ public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pin
 public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 {
     private FingerGesture fingerGesture = new FingerGesture();
-    private FingerPinch fingerPinch = new FingerPinch();
-    private const int _maxTouchCount = 2;
 
     public FingerTouchDown fingerTouchDown;
     public FingerTouchUp fingerTouchUp;
@@ -35,6 +34,8 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
     {
         ReceiveInput();
         Execute();
+
+        fingerGesture.ClearTouch();
     }
 
     private int[] mouseIds = new int[] { 0, }; // { 0, 1, 2 };
@@ -53,30 +54,9 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
     private float _scrollWheel = 0;
     private void PCReceiveInput()
     {
-        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
-        if (mouseScroll != 0)
+        if (ScrollWheel())
         {
-            _scrollWheel += mouseScroll;
-            fingerPinch.Pinch(1, 2, mouseScroll);
-
-            Touch touch0 = new Touch();
-            touch0.fingerId = 1;
-            touch0.position = Input.mousePosition;
-            touch0.deltaPosition = Vector2.zero;
-            touch0.phase = TouchPhase.Stationary;
-
-            Touch touch1 = new Touch();
-            touch0.fingerId = 2;
-            touch0.position = Input.mousePosition + Vector3.one * _scrollWheel;
-            touch0.deltaPosition = Vector2.zero;
-            touch0.phase = TouchPhase.Moved;
-
-            fingerGesture.SetTouch(touch0, touch1);
             return;
-        }
-        else
-        {
-            _scrollWheel = 0;
         }
 
         foreach (var fingerId in mouseIds)
@@ -111,8 +91,38 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
                 fingerGesture.SetTouch(touch);
             }
         }
+    }
 
+    private bool ScrollWheel()
+    {
+        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+        if (mouseScroll != 0)
+        {
+            //_scrollWheel += mouseScroll * 50;
+            //Debug.LogError(_scrollWheel);
 
+            //Touch touch0 = new Touch();
+            //touch0.fingerId = 1;
+            //touch0.position = Input.mousePosition;
+            //touch0.deltaPosition = Vector2.zero;
+            //touch0.phase = TouchPhase.Stationary;
+
+            //Touch touch1 = new Touch();
+            //touch1.fingerId = 2;
+            //touch1.position = Input.mousePosition + Vector3.one * _scrollWheel;
+            //touch1.deltaPosition = Vector2.zero;
+            //touch1.phase = TouchPhase.Moved;
+
+            //fingerGesture.SetTouch(touch0, touch1);
+
+            FingerGestureSystem.GetInstance().fingerTouchPinch?.Invoke(1, 2, mouseScroll);
+            return true;
+        }
+        else
+        {
+            _scrollWheel = 0;
+        }
+        return false;
     }
 
     private void MobileReceiveInput()

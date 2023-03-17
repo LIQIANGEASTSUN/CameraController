@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.UIElements;
+using System.Text;
 
 public class MouseInput : MonoBehaviour
 {
-    private float m_wheelSpeed = 50.0f;   // 默认鼠标滚轮速度
-    private int m_mouseLeft = 0;         //0对应右键 
-    protected Vector3 m_lastMousePos;
     private CameraController _cameraController;
+
+    private StringBuilder sb = new StringBuilder();
 
     private void Start()
     {
@@ -31,54 +32,79 @@ public class MouseInput : MonoBehaviour
         //UpdatePinch();
     }
 
+    private void OnGUI()
+    {
+        GUI.TextArea(new Rect(100, 10, 500, 200), sb.ToString());
+        if (GUI.Button(new Rect(0, 10, 50, 50), "Clean"))
+        {
+            sb.Clear();
+        }
+    }
+
     private void TouchDown(int fingerId, Vector2 position)
     {
         Debug.LogError("TouchDown:" + fingerId + "    " + position);
+        sb.AppendLine("TouchDown:" + fingerId + "    " + position);
     }
 
     private void TouchUp(int fingerId, Vector2 position)
     {
         Debug.LogError("TouchUp:" + fingerId + "    " + position);
+        sb.AppendLine("TouchUp:" + fingerId + "    " + position);
     }
 
     private void TouchClick(int fingerId, Vector2 position)
     {
         Debug.LogError("TouchClick:" + fingerId + "    " + position);
+        sb.AppendLine("TouchClick:" + fingerId + "    " + position);
     }
 
     private void TouchPress(int fingerId, Vector2 position)
     {
-        Debug.LogError("TouchClick:" + fingerId + "    " + position);
+        //Debug.LogError("TouchPress:" + fingerId + "    " + position);
+        //sb.AppendLine("TouchPress:" + fingerId + "    " + position);
     }
 
     private void BeginDrag(int fingerId, Vector2 position)
     {
+        Debug.LogError("BeginDrag:" + fingerId + "    " + position);
+        sb.AppendLine("BeginDrag:" + fingerId + "    " + position);
 
     }
 
     private void Drag(int fingerId, Vector2 position, Vector2 deltaPosition)
     {
+        Debug.LogError("Drag:" + fingerId + "    " + position);
         _cameraController.UpdateDragPosition(position, deltaPosition);
+        sb.AppendLine("Drag:" + fingerId + "    " + position);
+
     }
 
     private void EndDrag(int fingerId, Vector2 pisition)
     {
+        Debug.LogError("EndDrag:" + fingerId + "    " + pisition);
+        sb.AppendLine("EndDrag:" + fingerId + "    " + pisition);
 
     }
 
     private void BeginPinch(int fingerId1, int fingerId2, float pinch)
     {
+        Debug.LogError("BeginPinch:" + fingerId1 + "    " + pinch);
+        sb.AppendLine("BeginPinch:" + fingerId1 + "    " + pinch);
 
     }
 
-    private void Pinch(int fingerId1,  int fingerId2, float pinch)
+    private void Pinch(int fingerId1, int fingerId2, float pinch)
     {
-        _cameraController.UpdatePinch(pinch * m_wheelSpeed);
+        _cameraController.UpdatePinch(pinch);
+        Debug.LogError("Pinch:" + fingerId1 + "    " + pinch);
+        sb.AppendLine("Pinch:" + fingerId1 + "    " + pinch);
     }
 
     private void EndPinch(int fingerId1, int fingerId2, float pinch)
     {
-
+        Debug.LogError("EndPinch:" + fingerId1 + "    " + pinch);
+        sb.AppendLine("EndPinch:" + fingerId1 + "    " + pinch);
     }
 
 }
