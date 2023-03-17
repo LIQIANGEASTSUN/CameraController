@@ -6,7 +6,7 @@ public class CameraController
     private float m_pinchSpeed = 2;         // Àı∑≈ÀŸ∂»
 
     private float m_fDistanceMin = 6;
-    private float m_fDistanceMax = 30;
+    private float m_fDistanceMax = 20;
     protected Transform cameraTr;
 
     public CameraController()
