@@ -1,34 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using UnityEngine;
 
-public delegate void FingerTouchDown(int fingerId, Vector2 position);
-public delegate void FingerTouchUp(int fingerId, Vector2 position);
-public delegate void FingerTouchClick(int fingerId, Vector2 position);
-public delegate void FingerTouchPress(int fingerId, Vector2 position);
-public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
-public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
-public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
-public delegate void FingerTouchBeginPinch(int fingerId1, int fingerId2, float pinch);
-public delegate void FingerTouchPinch(int fingerId1, int fingerId2, float pinch);
-public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pinch);
-
-public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
+public class FingerGestureGet
 {
-    private FingerGesture fingerGesture = new FingerGesture();
+    private FingerGesture fingerGesture = null;
 
-    public FingerTouchDown fingerTouchDown;
-    public FingerTouchUp fingerTouchUp;
-    public FingerTouchClick fingerTouchClick;
-    public FingerTouchPress fingerTouchPress;
-    public FingerTouchBeginDrag fingerTouchBeginDrag;
-    public FingerTouchDrag fingerTouchDrag;
-    public FingerTouchDragEnd fingerTouchDragEnd;
-    public FingerTouchBeginPinch fingerTouchBeginPinch;
-    public FingerTouchPinch fingerTouchPinch;
-    public FingerTouchPinchEnd fingerTouchPinchEnd;
-
-    public FingerGestureSystem() {    }
+    public FingerGestureGet() {
+        fingerGesture = new FingerGesture();
+    }
 
     public void Update()
     {
@@ -102,11 +81,11 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
     private float _scrollWheel = 10000;
     private bool ScrollWheel()
     {
-        // 模拟两个手指输入
         float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+        // 模拟两个手指输入
         if (mouseScroll != 0)
         {
-            _scrollWheel += mouseScroll * 100;
+            _scrollWheel += mouseScroll * 150;
 
             Touch touch0 = new Touch();
             touch0.fingerId = 0;
@@ -189,5 +168,4 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
     {
         _invalidHash.Clear();
     }
-
 }

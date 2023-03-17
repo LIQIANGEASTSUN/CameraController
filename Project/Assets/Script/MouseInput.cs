@@ -1,0 +1,115 @@
+using UnityEngine;
+using System.Text;
+using System.Collections.Generic;
+
+public class MouseInput : MonoBehaviour
+{
+    private CameraController _cameraController;
+
+    private List<string> _msgList = new List<string>();
+
+    private void Start()
+    {
+        _cameraController = new CameraController();
+
+        FingerInputController.GetInstance().AddTouchDown(TouchDown);
+        FingerInputController.GetInstance().AddTouchUp(TouchUp);
+        FingerInputController.GetInstance().AddTouchClick(TouchClick);
+        FingerInputController.GetInstance().AddTouchPress(TouchPress);
+        FingerInputController.GetInstance().AddBeginDrag(BeginDrag);
+        FingerInputController.GetInstance().AddTouchDrag(Drag);
+        FingerInputController.GetInstance().AddDragEnd(EndDrag);
+        FingerInputController.GetInstance().AddBeginPinch(BeginPinch);
+        FingerInputController.GetInstance().AddTouchPinch(Pinch);
+        FingerInputController.GetInstance().AddEndPinch(EndPinch);
+
+        for (int i = 0; i < 10;  i++)
+        {
+            _msgList.Add("");
+        }
+    }
+
+    public void Update()
+    {
+        FingerInputController.GetInstance().Update();
+    }
+
+    private void OnGUI()
+    {
+        StringBuilder sb = new StringBuilder();
+        foreach (string str in _msgList)
+        {
+            sb.AppendLine(str);
+        }
+
+        GUI.TextArea(new Rect(100, 10, 500, 160), sb.ToString());
+        if (GUI.Button(new Rect(0, 10, 50, 50), "Clean"))
+        {
+            sb.Clear();
+        }
+    }
+
+    private void TouchDown(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchDown:" + fingerId + "    " + position);
+        _msgList[0] = "TouchDown:" + fingerId + "    " + position;
+    }
+
+    private void TouchUp(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchUp:" + fingerId + "    " + position);
+        _msgList[1] = "TouchUp:" + fingerId + "    " + position;
+    }
+
+    private void TouchClick(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchClick:" + fingerId + "    " + position);
+        _msgList[2] = ("TouchClick:" + fingerId + "    " + position);
+    }
+
+    private void TouchPress(int fingerId, Vector2 position)
+    {
+        //Debug.LogError("TouchPress:" + fingerId + "    " + position);
+        _msgList[3] = ("TouchPress:" + fingerId + "    " + position);
+    }
+
+    private void BeginDrag(int fingerId, Vector2 position)
+    {
+        Debug.LogError("BeginDrag:" + fingerId + "    " + position);
+        _msgList[4] = ("BeginDrag:" + fingerId + "    " + position);
+
+    }
+
+    private void Drag(int fingerId, Vector2 position, Vector2 deltaPosition)
+    {
+        Debug.LogError("Drag:" + fingerId + "    " + position);
+        _cameraController.UpdateDragPosition(position, deltaPosition);
+        _msgList[5] = ("Drag:" + fingerId + "    " + position);
+
+    }
+
+    private void EndDrag(int fingerId, Vector2 pisition)
+    {
+        Debug.LogError("EndDrag:" + fingerId + "    " + pisition);
+        _msgList[6] = ("EndDrag:" + fingerId + "    " + pisition);
+    }
+
+    private void BeginPinch(int fingerId1, int fingerId2, float pinch)
+    {
+        Debug.LogError("BeginPinch:" + fingerId1 + "    " + pinch);
+        _msgList[7] = ("BeginPinch:" + fingerId1 + "    " + pinch);
+    }
+
+    private void Pinch(int fingerId1, int fingerId2, float pinch)
+    {
+        _cameraController.UpdatePinch(pinch);
+        Debug.LogError("Pinch:" + fingerId1 + "    " + pinch);
+        _msgList[8] = ("Pinch:" + fingerId1 + "    " + pinch);
+    }
+
+    private void EndPinch(int fingerId1, int fingerId2, float pinch)
+    {
+        Debug.LogError("EndPinch:" + fingerId1 + "    " + pinch);
+        _msgList[9] = ("EndPinch:" + fingerId1 + "    " + pinch);
+    }
+}
