@@ -11,8 +11,16 @@ public class MouseInput : MonoBehaviour
     {
         _cameraController = new CameraController();
 
+        FingerGestureSystem.GetInstance().fingerTouchDown += TouchDown;
+        FingerGestureSystem.GetInstance().fingerTouchUp += TouchUp;
+        FingerGestureSystem.GetInstance().fingerTouchClick += TouchClick;
+        FingerGestureSystem.GetInstance().fingerTouchPress += TouchPress;
+        FingerGestureSystem.GetInstance().fingerTouchBeginDrag += BeginDrag;
         FingerGestureSystem.GetInstance().fingerTouchDrag += Drag;
+        FingerGestureSystem.GetInstance().fingerTouchDragEnd += EndDrag;
+        FingerGestureSystem.GetInstance().fingerTouchBeginPinch += BeginPinch;
         FingerGestureSystem.GetInstance().fingerTouchPinch += Pinch;
+        FingerGestureSystem.GetInstance().fingerTouchPinchEnd += EndPinch;
     }
 
     public void Update()
@@ -23,15 +31,56 @@ public class MouseInput : MonoBehaviour
         //UpdatePinch();
     }
 
+    private void TouchDown(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchDown:" + fingerId + "    " + position);
+    }
+
+    private void TouchUp(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchUp:" + fingerId + "    " + position);
+    }
+
+    private void TouchClick(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchClick:" + fingerId + "    " + position);
+    }
+
+    private void TouchPress(int fingerId, Vector2 position)
+    {
+        Debug.LogError("TouchClick:" + fingerId + "    " + position);
+    }
+
+    private void BeginDrag(int fingerId, Vector2 position)
+    {
+
+    }
+
     private void Drag(int fingerId, Vector2 position, Vector2 deltaPosition)
     {
         _cameraController.UpdateDragPosition(position, deltaPosition);
+    }
+
+    private void EndDrag(int fingerId, Vector2 pisition)
+    {
+
+    }
+
+    private void BeginPinch(int fingerId1, int fingerId2, float pinch)
+    {
+
     }
 
     private void Pinch(int fingerId1,  int fingerId2, float pinch)
     {
         _cameraController.UpdatePinch(pinch * m_wheelSpeed);
     }
+
+    private void EndPinch(int fingerId1, int fingerId2, float pinch)
+    {
+
+    }
+
 }
 
 /*

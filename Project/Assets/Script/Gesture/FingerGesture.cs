@@ -3,17 +3,18 @@ using UnityEngine;
 
 public class FingerGesture
 {
-    private Touch _touch;
-    private int _touchCount = 0;
+    public Touch _touch0;
+    public Touch _touch1;
+    public int _touchCount = 0;
     private bool _beginDrag = false;
 
     private StateMachine _stateMachine;
 
     public FingerGesture()
     {
-        _touch = new Touch();
-        _touch.fingerId = -1000;
-        _touch.phase = TouchPhase.Canceled;
+        //_touch = new Touch();
+        //_touch.fingerId = -1000;
+        //_touch.phase = TouchPhase.Canceled;
 
         _stateMachine = new StateMachine();
         _stateMachine.AddState(new GestureStateNone(_stateMachine, this));
@@ -26,21 +27,31 @@ public class FingerGesture
 
     public void AddTouch(Touch touch)
     {
-        _touchCount++;
-        _touch.fingerId = touch.fingerId;
-        _touch.position = touch.position;
-        _touch.deltaPosition = touch.deltaPosition;
-        _touch.phase = touch.phase;
+        //_touchCount++;
+        //_touch.fingerId = touch.fingerId;
+        //_touch.position = touch.position;
+        //_touch.deltaPosition = touch.deltaPosition;
+        //_touch.phase = touch.phase;
     }
 
     public void SetTouch(Touch touch)
     {
+        _touch0 = touch;
+        _touchCount = 1;
         _stateMachine.CurrentState.SetTouch(touch);
     }
 
     public void SetTouch(Touch touch0, Touch touch1)
     {
+        _touch0 = touch0;
+        _touch1 = touch1;
+        _touchCount = 2;
         _stateMachine.CurrentState.SetTouch(touch0, touch1);
+    }
+
+    public void ClearTouch()
+    {
+        _touchCount = 0;
     }
 
     public void Execute()

@@ -3,14 +3,14 @@ using UnityEngine;
 
 public delegate void FingerTouchDown(int fingerId, Vector2 position);
 public delegate void FingerTouchUp(int fingerId, Vector2 position);
-public delegate bool FingerTouchClick(int fingerId, Vector2 position);
-public delegate bool FingerTouchPress(int fingerId, Vector2 position);
+public delegate void FingerTouchClick(int fingerId, Vector2 position);
+public delegate void FingerTouchPress(int fingerId, Vector2 position);
 public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
 public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition);
-public delegate void FingerTouchBeginPinch(int fingerId, Vector2 position);
+public delegate void FingerTouchBeginPinch(int fingerId1, int fingerId2, float pinch);
 public delegate void FingerTouchPinch(int fingerId1, int fingerId2, float pinch);
-public delegate void FingerTouchPinchEnd(int fingerId);
+public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pinch);
 
 public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
 {
@@ -50,9 +50,36 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
     }
 
     private Vector3 _lastMousePosition = Vector3.zero;
+    private float _scrollWheel = 0;
     private void PCReceiveInput()
     {
-        foreach(var fingerId in mouseIds)
+        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+        if (mouseScroll != 0)
+        {
+            _scrollWheel += mouseScroll;
+            fingerPinch.Pinch(1, 2, mouseScroll);
+
+            Touch touch0 = new Touch();
+            touch0.fingerId = 1;
+            touch0.position = Input.mousePosition;
+            touch0.deltaPosition = Vector2.zero;
+            touch0.phase = TouchPhase.Stationary;
+
+            Touch touch1 = new Touch();
+            touch0.fingerId = 2;
+            touch0.position = Input.mousePosition + Vector3.one * _scrollWheel;
+            touch0.deltaPosition = Vector2.zero;
+            touch0.phase = TouchPhase.Moved;
+
+            fingerGesture.SetTouch(touch0, touch1);
+            return;
+        }
+        else
+        {
+            _scrollWheel = 0;
+        }
+
+        foreach (var fingerId in mouseIds)
         {
             Vector2 deltaPosition = Vector2.zero;
             TouchPhase touchPhase = TouchPhase.Canceled;
@@ -85,11 +112,7 @@ public class FingerGestureSystem : SingletonObject<FingerGestureSystem>
             }
         }
 
-        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
-        if (mouseScroll != 0)
-        {
-            fingerPinch.Pinch(1, 2, mouseScroll);
-        }
+
     }
 
     private void MobileReceiveInput()
