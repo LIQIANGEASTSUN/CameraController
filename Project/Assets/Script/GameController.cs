@@ -1,11 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Text;
 using System.Collections.Generic;
 
-public class MouseInput : MonoBehaviour
+public class GameController : MonoBehaviour
 {
     private CameraController _cameraController;
-
     private List<string> _msgList = new List<string>();
 
     private void Start()
@@ -35,16 +34,6 @@ public class MouseInput : MonoBehaviour
     public void Update()
     {
         FingerInputController.GetInstance().Update();
-        _cameraController.LateUpdate();
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            _cameraController.SetLockDrag(true);
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            _cameraController.SetLockDrag(false);
-        }
     }
 
     private void OnGUI()
