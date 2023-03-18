@@ -11,6 +11,7 @@ public class MouseInput : MonoBehaviour
     private void Start()
     {
         _cameraController = new CameraController();
+        _cameraController.SetCamera(Camera.main);
 
         FingerInputController.GetInstance().AddTouchDown(TouchDown);
         FingerInputController.GetInstance().AddTouchUp(TouchUp);
@@ -83,7 +84,7 @@ public class MouseInput : MonoBehaviour
 
     private void EndDrag(int fingerId, Vector2 position, Vector2 deltaPosition)
     {
-        _msgList[6] = ("EndDrag:" + fingerId + "    " + position);
+        _msgList[6] = ("EndDrag:" + fingerId + "    " + position + "   " + deltaPosition);
         _cameraController.DragEnd(position, deltaPosition);
     }
 

@@ -48,9 +48,4 @@ public class GestureStatePinch : StateBase
         _lastPinchDistance = pinch;
         return value;
     }
-
-    public override void OnExit()
-    {
-        base.OnExit();
-    }
 }

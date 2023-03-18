@@ -5,7 +5,6 @@ public class FingerGesture
     public Touch _touch0;
     public Touch _touch1;
     public int _touchCount = 0;
-    private bool _beginDrag = false;
 
     private StateMachine _stateMachine;
 

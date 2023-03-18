@@ -2,7 +2,6 @@
 
 public class GestureStateClick : StateBase
 {
-    private Vector2 _downPosition = Vector2.zero;
     public GestureStateClick(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Click, fingerGesture)
     {
     }
@@ -47,10 +46,5 @@ public class GestureStateClick : StateBase
         {
             _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
         }
-    }
-
-    public override void OnExit()
-    {
-        base.OnExit();
     }
 }

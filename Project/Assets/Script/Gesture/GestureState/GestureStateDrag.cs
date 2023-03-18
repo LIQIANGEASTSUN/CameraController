@@ -39,9 +39,4 @@ public class GestureStateDrag : StateBase
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
     }
-
-    public override void OnExit()
-    {
-        base.OnExit();
-    }
 }

@@ -2,83 +2,108 @@ using UnityEngine;
 
 public class CameraController
 {
-    public float m_currentDistance = 8.0f;  // 默认距离
-    private float m_pinchSpeed = 2;         // 缩放速度
+    private float m_pinchSpeed = 2;                // 缩放速度
 
-    private float m_fDistanceMin = 6;
-    private float m_fDistanceMax = 20;
+    private float m_fDistanceMin = 6;              // Camera Forward 方向 距离地面最近距离
+    private float m_fDistanceMax = 20;             // Camera Forward 方向 距离地面最远距离
 
-    private Vector3 _smoothVector = Vector3.zero;
-    private float _smoothTime = 0;
+    private Vector3 _smoothVector = Vector3.zero;  // Camera 停止操作平滑移动方向
+    private float _smoothTime = 0;                 // Camera 停止操作平滑移动时间
 
-    protected Transform cameraTr;
+    private bool _lockDrag = false;                // 锁 Drag 操作
+    private bool _lockPinch = false;               // 锁 pinch 操作
 
-    public CameraController()
+    private Camera _camera;
+    public CameraController() {   }
+
+    public void SetCamera(Camera camera)
     {
-        cameraTr = Camera.main.transform;
+        _camera = camera;
+    }
+
+    private Transform Transform
+    {
+        get { return _camera.transform; }
+    }
+
+    public void SetLockDrag(bool lockDrag)
+    {
+        _lockDrag = lockDrag;
+    }
+
+    public void SetLockPinch(bool lockPinch)
+    {
+        _lockPinch = lockPinch;
     }
 
     //设置主摄像机的位置
     public void SetPosition(Vector3 position)
     {
-        cameraTr.position = position;
+        _camera.transform.position = position;
     }
 
     public Vector3 GetPosition()
     {
-        return cameraTr.position;
+        return Transform.position;
     }
 
     private void SetRotation(Quaternion rotation)
     {
-        cameraTr.rotation = rotation;
+        Transform.rotation = rotation;
     }
 
     public Quaternion GetRotation()
     {
-        return cameraTr.rotation;
+        return Transform.rotation;
     }
 
     private Vector3 Forward
     {
-        get { return cameraTr.forward;}
+        get { return Transform.forward;}
     }
 
     public void UpdatePinch(float pinch)
     {
+        if (_lockPinch)
+            return;
         float dist = CameraToLookPositionLength(Forward);
-        m_currentDistance = dist - pinch * m_pinchSpeed;
-        m_currentDistance = Mathf.Clamp(m_currentDistance, m_fDistanceMin, m_fDistanceMax);
+        float currentDistance = dist - pinch * m_pinchSpeed;
+        currentDistance = Mathf.Clamp(currentDistance, m_fDistanceMin, m_fDistanceMax);
 
         //摄像机中心地面坐标
         Vector3 zero = GetPosition() + Forward * dist;
         // 计算摄像机坐标
-        Vector3 position = zero - m_currentDistance * Forward;
+        Vector3 position = zero - currentDistance * Forward;
         SetPosition(position);
+        StopSmooth();
     }
 
     public void DragPosition(Vector2 currentScreen, Vector2 offsetScreen)
     {
+        if (_lockDrag)
+            return;
         Vector3 offset = DragOffset(currentScreen, offsetScreen);
         Vector3 position = GetPosition() - offset;
         SetPosition(position);
+        StopSmooth();
     }
 
     public void DragEnd(Vector2 currentScreen, Vector2 offsetScreen)
     {
+        if (_lockDrag)
+            return;
         Vector3 offset = DragOffset(currentScreen, offsetScreen);
-        _smoothVector = offset * 0.5f;
-        _smoothTime = 1;
+        StartSmoothTo( 1, offset * 0.5f);
     }
 
     public Vector3 DragOffset(Vector2 currentScreen, Vector2 offsetScreen)
     {
         Vector3 startScreen = currentScreen - offsetScreen;
-        Ray rayStart = Camera.main.ScreenPointToRay(startScreen);
+        Ray rayStart = _camera.ScreenPointToRay(startScreen);
         float dist = CameraToLookPositionLength(rayStart.direction);
         Vector3 start = GetPosition() + rayStart.direction * dist;
 
-        Ray rayCurrent = Camera.main.ScreenPointToRay(currentScreen);
+        Ray rayCurrent = _camera.ScreenPointToRay(currentScreen);
         dist = CameraToLookPositionLength(rayCurrent.direction);
         Vector3 current = GetPosition() + rayCurrent.direction * dist;
 
@@ -88,13 +113,7 @@ public class CameraController
 
     public void Update()
     {
-        if(_smoothTime > 0)
-        {
-            _smoothTime -= Time.deltaTime * 2;
-            _smoothTime = Mathf.Clamp(_smoothTime, 0, 1);
-            Vector3 position = GetPosition() - _smoothVector * _smoothTime;
-            SetPosition(position);
-        }
+        SmoothTo();
     }
 
     public void MoveLookPosition(Vector3 position)
@@ -111,5 +130,28 @@ public class CameraController
         Vector3 position = GetPosition();
         float dist = position.y / Vector3.Dot(dir, Vector3.down);
         return dist;
+    }
+
+    private void StopSmooth()
+    {
+        _smoothTime = 0;
+        _smoothVector = Vector3.zero;
+    }
+
+    private void StartSmoothTo(float smoothTime, Vector3 smoothVector)
+    {
+        _smoothTime = smoothTime;
+        _smoothVector = smoothVector;
+    }
+
+    private void SmoothTo()
+    {
+        if (_smoothTime > 0)
+        {
+            _smoothTime -= Time.deltaTime * 2;
+            _smoothTime = Mathf.Clamp(_smoothTime, 0, 1);
+            Vector3 position = GetPosition() - _smoothVector * _smoothTime;
+            SetPosition(position);
+        }
     }
 }

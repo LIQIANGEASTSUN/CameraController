@@ -1,13 +1,7 @@
-﻿
-public class GestureStateNone : StateBase
+﻿public class GestureStateNone : StateBase
 {
     public GestureStateNone(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.None, fingerGesture)
     {
-    }
-
-    public override void OnEnter()
-    {
-        base.OnEnter();
     }
 
     public override void OnExecute()
@@ -21,10 +15,5 @@ public class GestureStateNone : StateBase
         {
             _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
         }
-    }
-
-    public override void OnExit()
-    {
-        base.OnExit();
     }
 }
