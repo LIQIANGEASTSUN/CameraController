@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class GestureStateDrag : StateBase
+public class GestureStateDrag : GestureStateBase
 {
     private Vector2 _lastPosition = Vector2.zero;
     public GestureStateDrag(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Drag, fingerGesture)

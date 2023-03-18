@@ -10,7 +10,7 @@ public class MouseInput : MonoBehaviour
 
     private void Start()
     {
-        _cameraController = new CameraController();
+        _cameraController = CameraController.Instance;
         _cameraController.SetCamera(Camera.main);
 
         FingerInputController.GetInstance().AddTouchDown(TouchDown);
@@ -33,7 +33,7 @@ public class MouseInput : MonoBehaviour
     public void Update()
     {
         FingerInputController.GetInstance().Update();
-        _cameraController.Update();
+        _cameraController.LateUpdate();
     }
 
     private void OnGUI()

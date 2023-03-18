@@ -2,7 +2,6 @@
 
 public class StateMachine
 {
-
     private Dictionary<int, StateBase> _stateDic = new Dictionary<int, StateBase>();
     private StateBase _currentState;
 
@@ -16,7 +15,7 @@ public class StateMachine
         _stateDic[stateBase.State] = stateBase;
     }
 
-    public void ChangeState(int state)
+    public void ChangeState(int state, object transitionData = null)
     {
         if (null != _currentState && _currentState.State == state)
         {
@@ -35,6 +34,7 @@ public class StateMachine
         }
 
         _currentState = stateBase;
+        _currentState.SetTransitionData(transitionData);
         _currentState.OnEnter();
     }
 

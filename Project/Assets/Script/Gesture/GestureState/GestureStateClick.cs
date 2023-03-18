@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class GestureStateClick : StateBase
+public class GestureStateClick : GestureStateBase
 {
     public GestureStateClick(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Click, fingerGesture)
     {

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public delegate void FingerTouchDown(int fingerId, Vector2 position);
 public delegate void FingerTouchUp(int fingerId, Vector2 position);
@@ -27,14 +26,8 @@ public class FingerInputController : SingletonObject<FingerInputController>
     private FingerTouchPinch fingerTouchPinch;
     private FingerTouchPinchEnd fingerTouchPinchEnd;
 
-    private List<string> _msgList = new List<string>();
-
     public FingerInputController()
     {
-        for (int i = 0; i < 10; i++)
-        {
-            _msgList.Add("");
-        }
     }
 
     public void Update()

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class GestureStatePinch : StateBase
+public class GestureStatePinch : GestureStateBase
 {
     private float _lastPinchDistance = 0;
     private float _coefficient = 0.01f;

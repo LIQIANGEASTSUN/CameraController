@@ -1,7 +1,9 @@
 using UnityEngine;
 
-public class CameraController
+public class CameraController : MonoBehaviour
 {
+    public static CameraController Instance;
+
     private float m_pinchSpeed = 2;                // 缩放速度
 
     private float m_fDistanceMin = 6;              // Camera Forward 方向 距离地面最近距离
@@ -14,7 +16,15 @@ public class CameraController
     private bool _lockPinch = false;               // 锁 pinch 操作
 
     private Camera _camera;
-    public CameraController() {   }
+    public CameraController() {  
+    
+    }
+
+    public void Awake()
+    {
+        Instance = this;
+        _camera = GetComponent<Camera>();
+    }
 
     public void SetCamera(Camera camera)
     {
@@ -111,7 +121,7 @@ public class CameraController
         return offset;
     }
 
-    public void Update()
+    public void LateUpdate()
     {
         SmoothTo();
     }

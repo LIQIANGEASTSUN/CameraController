@@ -1,4 +1,4 @@
-﻿public class GestureStateNone : StateBase
+﻿public class GestureStateNone : GestureStateBase
 {
     public GestureStateNone(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.None, fingerGesture)
     {
