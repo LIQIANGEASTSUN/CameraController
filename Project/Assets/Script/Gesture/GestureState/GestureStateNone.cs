@@ -4,16 +4,13 @@
     {
     }
 
-    public override void OnExecute()
+    protected override void Touch1Execute()
     {
-        base.OnExecute();
-        if (_fingerGesture._touchCount == 1)
-        {
-            _stateMachine.ChangeState((int)GestureStateEnum.Click);
-        }
-        else if (_fingerGesture._touchCount == 2)
-        {
-            _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
-        }
+        _stateMachine.ChangeState((int)GestureStateEnum.Click);
+    }
+
+    protected override void Touch2Execute()
+    {
+        _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
     }
 }

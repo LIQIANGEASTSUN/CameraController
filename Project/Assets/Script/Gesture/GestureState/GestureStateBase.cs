@@ -1,5 +1,4 @@
-﻿
-public enum GestureStateEnum
+﻿public enum GestureStateEnum
 {
     /// <summary>
     /// 空状态
@@ -36,5 +35,38 @@ public class GestureStateBase : StateBase
         _stateMachine = stateMachine;
         _state = state;
         _fingerGesture = fingerGesture;
+    }
+
+    public override void OnExecute()
+    {
+        base.OnExecute();
+
+        if (_fingerGesture._touchCount <= 0)
+        {
+            Touch0Execute();
+        }
+        else if (_fingerGesture._touchCount == 1)
+        {
+            Touch1Execute();
+        }
+        else if (_fingerGesture._touchCount == 2)
+        {
+            Touch2Execute();
+        }
+    }
+
+    protected virtual void Touch0Execute()
+    {
+
+    }
+
+    protected virtual void Touch1Execute()
+    {
+
+    }
+
+    protected virtual void Touch2Execute()
+    {
+
     }
 }

@@ -10,22 +10,30 @@ public class GestureStateDrag : GestureStateBase
     public override void OnEnter()
     {
         base.OnEnter();
-        if (_fingerGesture._touch0.phase == TouchPhase.Moved)
+        _lastPosition = _fingerGesture._touch0.position;
+        if(_fingerGesture._touch0.phase == TouchPhase.Moved)
         {
-            _lastPosition = _fingerGesture._touch0.position;
             FingerInputController.GetInstance().fingerTouchBeginDrag?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
         }
     }
 
-    public override void OnExecute()
+    protected override void Touch0Execute()
     {
-        base.OnExecute();
-        if (_fingerGesture._touchCount <= 0)
-        {
-            _stateMachine.ChangeState((int)GestureStateEnum.None);
-            return;
-        }
+        _stateMachine.ChangeState((int)GestureStateEnum.None);
+    }
 
+    protected override void Touch1Execute()
+    {
+        Drag();
+    }
+
+    protected override void Touch2Execute()
+    {
+        Drag();
+    }
+
+    private void Drag()
+    {
         if (_fingerGesture._touch0.phase == TouchPhase.Moved)
         {
             Vector2 deltaPosition = GetDeltaPosition();

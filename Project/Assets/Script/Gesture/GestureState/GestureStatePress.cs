@@ -14,37 +14,32 @@ public class GestureStatePress : GestureStateBase
         FingerInputController.GetInstance().fingerTouchBeginLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
     }
 
-    public override void OnExecute()
+    protected override void Touch0Execute()
     {
-        base.OnExecute();
+        _stateMachine.ChangeState((int)GestureStateEnum.None);
+    }
 
-        if (_fingerGesture._touchCount <= 0)
+    protected override void Touch1Execute()
+    {
+        if (_fingerGesture._touch0.phase == TouchPhase.Moved)
         {
+            _stateMachine.ChangeState((int)GestureStateEnum.Drag);
+        }
+        else if (_fingerGesture._touch0.phase == TouchPhase.Stationary)
+        {
+            float time = Time.realtimeSinceStartup - _enterTime;
+            FingerInputController.GetInstance().fingerTouchLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, time);
+        }
+        else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
+        {
+            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
-            return;
         }
+    }
 
-        if (_fingerGesture._touchCount == 1)
-        {
-            if (_fingerGesture._touch0.phase == TouchPhase.Moved)
-            {
-                _stateMachine.ChangeState((int)GestureStateEnum.Drag);
-            }
-            else if (_fingerGesture._touch0.phase == TouchPhase.Stationary)
-            {
-                float time = Time.realtimeSinceStartup - _enterTime;
-                FingerInputController.GetInstance().fingerTouchLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, time);
-            }
-            else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
-            {
-                FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
-                _stateMachine.ChangeState((int)GestureStateEnum.None);
-            }
-        }
-        else if (_fingerGesture._touchCount == 2)
-        {
-            _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
-        }
+    protected override void Touch2Execute()
+    {
+        _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
     }
 
     public override void OnExit()

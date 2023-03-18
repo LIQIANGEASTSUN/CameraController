@@ -16,23 +16,25 @@ public class GestureStatePinch : GestureStateBase
         FingerInputController.GetInstance().fingerTouchBeginPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
     }
 
-    public override void OnExecute()
+    protected override void Touch0Execute()
     {
-        base.OnExecute();
+        _stateMachine.ChangeState((int)GestureStateEnum.None);
+    }
 
-        if (_fingerGesture._touchCount <= 1)
-        {
-            _stateMachine.ChangeState((int)GestureStateEnum.None);
-            return;
-        }
+    protected override void Touch1Execute()
+    {
+        _stateMachine.ChangeState((int)GestureStateEnum.None);
+    }
 
+    protected override void Touch2Execute()
+    {
         if (_fingerGesture._touch0.phase == TouchPhase.Moved || _fingerGesture._touch1.phase == TouchPhase.Moved)
         {
             float pinch = Pinch();
             FingerInputController.GetInstance().fingerTouchPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, pinch);
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled
-            || _fingerGesture._touch1.phase == TouchPhase.Ended || _fingerGesture._touch1.phase == TouchPhase.Canceled)
+              || _fingerGesture._touch1.phase == TouchPhase.Ended || _fingerGesture._touch1.phase == TouchPhase.Canceled)
         {
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
