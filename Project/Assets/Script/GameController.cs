@@ -10,7 +10,8 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         _cameraController = CameraController.Instance;
-        _cameraController.SetCamera(Camera.main);
+
+        BuildingOperationController.GetInstance().Init();
 
         FingerInputController.GetInstance().fingerTouchDown += TouchDown;
         FingerInputController.GetInstance().fingerTouchUp += TouchUp;
@@ -68,6 +69,8 @@ public class GameController : MonoBehaviour
         FingerInputController.GetInstance().fingerTouchBeginPinch -= BeginPinch;
         FingerInputController.GetInstance().fingerTouchPinch -= Pinch;
         FingerInputController.GetInstance().fingerTouchPinchEnd -= EndPinch;
+
+        BuildingOperationController.GetInstance().Release();
     }
 
     private void TouchDown(int fingerId, Vector2 position)

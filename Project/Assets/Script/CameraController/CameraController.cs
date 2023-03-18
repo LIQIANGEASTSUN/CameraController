@@ -16,9 +16,7 @@ public class CameraController : MonoBehaviour
     private bool _lockPinch = false;               // Ëø pinch ²Ù×÷
 
     private Camera _camera;
-    public CameraController() {  
-    
-    }
+    public CameraController() {   }
 
     public void Awake()
     {
