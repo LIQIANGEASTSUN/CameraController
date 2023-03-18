@@ -13,7 +13,7 @@ public class GestureStateDrag : GestureStateBase
         if (_fingerGesture._touch0.phase == TouchPhase.Moved)
         {
             _lastPosition = _fingerGesture._touch0.position;
-            FingerInputController.GetInstance().NotifyBeginDrag(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+            FingerInputController.GetInstance().fingerTouchBeginDrag?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
         }
     }
 
@@ -28,15 +28,22 @@ public class GestureStateDrag : GestureStateBase
 
         if (_fingerGesture._touch0.phase == TouchPhase.Moved)
         {
-            Vector2 deltaPosition = _fingerGesture._touch0.position - _lastPosition;
-            FingerInputController.GetInstance().NotifyTouchDrag(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, deltaPosition);
-            _lastPosition = _fingerGesture._touch0.position;
+            Vector2 deltaPosition = GetDeltaPosition();
+            FingerInputController.GetInstance().fingerTouchDrag?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, deltaPosition);
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
         {
-            Vector2 deltaPosition = _fingerGesture._touch0.position - _lastPosition;
-            FingerInputController.GetInstance().NotifyDragEnd(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, deltaPosition);
+            Vector2 deltaPosition = GetDeltaPosition();
+            FingerInputController.GetInstance().fingerTouchDragEnd(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, deltaPosition);
+            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
+    }
+
+    private Vector2 GetDeltaPosition()
+    {
+        Vector2 deltaPosition = _fingerGesture._touch0.position - _lastPosition;
+        _lastPosition = _fingerGesture._touch0.position;
+        return deltaPosition;
     }
 }

@@ -13,7 +13,7 @@ public class GestureStatePinch : GestureStateBase
         base.OnEnter();
 
         _lastPinchDistance = Vector2.Distance(_fingerGesture._touch0.position, _fingerGesture._touch1.position);
-        FingerInputController.GetInstance().NofifyBeginPinch(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
+        FingerInputController.GetInstance().fingerTouchBeginPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
     }
 
     public override void OnExecute()
@@ -22,7 +22,6 @@ public class GestureStatePinch : GestureStateBase
 
         if (_fingerGesture._touchCount <= 1)
         {
-            FingerInputController.GetInstance().NotifyEndPinch(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
             return;
         }
@@ -30,15 +29,19 @@ public class GestureStatePinch : GestureStateBase
         if (_fingerGesture._touch0.phase == TouchPhase.Moved || _fingerGesture._touch1.phase == TouchPhase.Moved)
         {
             float pinch = Pinch();
-            FingerInputController.GetInstance().NotifyTouchPinch(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, pinch);
+            FingerInputController.GetInstance().fingerTouchPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, pinch);
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled
             || _fingerGesture._touch1.phase == TouchPhase.Ended || _fingerGesture._touch1.phase == TouchPhase.Canceled)
         {
-            float pinch = Pinch();
-            FingerInputController.GetInstance().NotifyEndPinch(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, pinch);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
+    }
+
+    public override void OnExit()
+    {
+        base.OnExit();
+        FingerInputController.GetInstance().fingerTouchPinchEnd?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
     }
 
     private float Pinch()

@@ -13,6 +13,7 @@ public class FingerGesture
         _stateMachine = new StateMachine();
         _stateMachine.AddState(new GestureStateNone(_stateMachine, this));
         _stateMachine.AddState(new GestureStateClick(_stateMachine, this));
+        _stateMachine.AddState(new GestureStatePress(_stateMachine, this));
         _stateMachine.AddState(new GestureStateDrag(_stateMachine, this));
         _stateMachine.AddState(new GestureStatePinch(_stateMachine, this));
 

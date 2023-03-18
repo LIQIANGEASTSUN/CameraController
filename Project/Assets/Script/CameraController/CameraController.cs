@@ -23,7 +23,8 @@ public class CameraController : MonoBehaviour
     public void Awake()
     {
         Instance = this;
-        _camera = GetComponent<Camera>();
+        Camera camera = GetComponent<Camera>();
+        SetCamera(camera);
     }
 
     public void SetCamera(Camera camera)

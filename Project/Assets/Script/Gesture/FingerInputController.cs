@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public delegate void FingerTouchDown(int fingerId, Vector2 position);
 public delegate void FingerTouchUp(int fingerId, Vector2 position);
 public delegate void FingerTouchClick(int fingerId, Vector2 position);
-public delegate void FingerTouchPress(int fingerId, Vector2 position);
+public delegate void FingerTouchBeginLongPress(int fingerId, Vector2 position);
+public delegate void FingerTouchLongPress(int fingerId, Vector2 position, float time);
+public delegate void FingerTouchEndLongPress(int fingerId, Vector2 position);
 public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
 public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
 public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition, Vector2 deltaPosition);
@@ -13,175 +16,184 @@ public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pin
 
 public class FingerInputController : SingletonObject<FingerInputController>
 {
-    private FingerGestureGet _fingerGestureGet = new FingerGestureGet();
+    private FingerGesture fingerGesture = null;
 
-    private FingerTouchDown fingerTouchDown;
-    private FingerTouchUp fingerTouchUp;
-    private FingerTouchClick fingerTouchClick;
-    private FingerTouchPress fingerTouchPress;
-    private FingerTouchBeginDrag fingerTouchBeginDrag;
-    private FingerTouchDrag fingerTouchDrag;
-    private FingerTouchDragEnd fingerTouchDragEnd;
-    private FingerTouchBeginPinch fingerTouchBeginPinch;
-    private FingerTouchPinch fingerTouchPinch;
-    private FingerTouchPinchEnd fingerTouchPinchEnd;
+    public FingerTouchDown fingerTouchDown;
+    public FingerTouchUp fingerTouchUp;
+    public FingerTouchClick fingerTouchClick;
+    public FingerTouchBeginLongPress fingerTouchBeginLongPress;
+    public FingerTouchLongPress fingerTouchLongPress;
+    public FingerTouchEndLongPress fingerTouchEndLongPress;
+    public FingerTouchBeginDrag fingerTouchBeginDrag;
+    public FingerTouchDrag fingerTouchDrag;
+    public FingerTouchDragEnd fingerTouchDragEnd;
+    public FingerTouchBeginPinch fingerTouchBeginPinch;
+    public FingerTouchPinch fingerTouchPinch;
+    public FingerTouchPinchEnd fingerTouchPinchEnd;
 
     public FingerInputController()
     {
+        fingerGesture = new FingerGesture();
     }
 
     public void Update()
     {
-        _fingerGestureGet.Update();
+        ReceiveInput();
+        Execute();
+
+        fingerGesture.ClearTouch();
     }
 
-    public void AddTouchDown(FingerTouchDown down)
+    private int[] mouseIds = new int[] { 0, }; // { 0, 1, 2 };
+    private void ReceiveInput()
     {
-        fingerTouchDown += down;
+#if UNITY_EDITOR || UNITY_STANDALONE
+        PCReceiveInput();
+#endif
+
+#if (!UNITY_EDITOR) && (UNITY_IOS || UNITY_ANDROID)
+        MobileReceiveInput();
+#endif
     }
 
-    public void RemoveTouchDown(FingerTouchDown down)
+    private Vector3 _lastMousePosition = Vector3.zero;
+    private void PCReceiveInput()
     {
-        fingerTouchDown -= down;
+        if (ScrollWheel())
+        {
+            return;
+        }
+
+        foreach (var fingerId in mouseIds)
+        {
+            Vector2 deltaPosition = Vector2.zero;
+            TouchPhase touchPhase = TouchPhase.Canceled;
+
+            if (Input.GetMouseButtonDown(fingerId))
+            {
+                touchPhase = TouchPhase.Began;
+                _lastMousePosition = Input.mousePosition;
+            }
+            else if (Input.GetMouseButton(fingerId))
+            {
+                Vector3 offset = Input.mousePosition - _lastMousePosition;
+                _lastMousePosition = Input.mousePosition;
+                deltaPosition = new Vector2(offset.x, offset.y);
+                touchPhase = (deltaPosition.sqrMagnitude > 0) ? TouchPhase.Moved : TouchPhase.Stationary;
+            }
+            else if (Input.GetMouseButtonUp(fingerId))
+            {
+                touchPhase = TouchPhase.Ended;
+            }
+
+            if (touchPhase != TouchPhase.Canceled)
+            {
+                Touch touch = new Touch();
+                touch.fingerId = fingerId;
+                touch.position = Input.mousePosition;
+                touch.deltaPosition = deltaPosition;
+                touch.phase = touchPhase;
+                if (ValidTouch(touch))
+                {
+                    fingerGesture.SetTouch(touch);
+                }
+            }
+            else
+            {
+                ClearInvalid();
+            }
+        }
     }
 
-    public void NotifyTouchDown(int fingerId, Vector2 position)
+    private float _scrollWheel = 10000;
+    private bool ScrollWheel()
     {
-        fingerTouchDown?.Invoke(fingerId, position);
+        float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+        // 模拟两个手指输入
+        if (mouseScroll != 0)
+        {
+            _scrollWheel += mouseScroll * 150;
+
+            Touch touch0 = new Touch();
+            touch0.fingerId = 0;
+            touch0.position = Input.mousePosition;
+            touch0.deltaPosition = Vector2.zero;
+            touch0.phase = TouchPhase.Stationary;
+
+            Touch touch1 = new Touch();
+            touch1.fingerId = 1;
+            touch1.position = Input.mousePosition + Vector3.one * _scrollWheel;
+            touch1.deltaPosition = Vector2.zero;
+            touch1.phase = TouchPhase.Moved;
+
+            fingerGesture.SetTouch(touch0, touch1);
+            return true;
+        }
+        else
+        {
+            _scrollWheel = 10000;
+        }
+        return false;
     }
 
-    public void AddTouchUp(FingerTouchUp up)
+    private void MobileReceiveInput()
     {
-        fingerTouchUp += up;
+        if (Input.touchCount == 0)
+        {
+            ClearInvalid();
+        }
+        else if (Input.touchCount == 1)
+        {
+            Touch touch0 = Input.GetTouch(0);
+            if (ValidTouch(touch0))
+            {
+                fingerGesture.SetTouch(touch0);
+            }
+        }
+        else if (Input.touchCount >= 2)
+        {
+            // 只取前两个
+            Touch touch0 = Input.GetTouch(0);
+            bool valid0 = ValidTouch(touch0);
+
+            Touch touch1 = Input.GetTouch(1);
+            bool valie1 = ValidTouch(touch1);
+
+            if (valid0 && valie1)
+            {
+                fingerGesture.SetTouch(touch0, touch1);
+            }
+            else if (valid0)
+            {
+                fingerGesture.SetTouch(touch0);
+            }
+        }
     }
 
-    public void RemoveTouchUp(FingerTouchUp up)
+    private void Execute()
     {
-        fingerTouchUp -= up;
+        fingerGesture.Execute();
     }
 
-    public void NotifyTouchUp(int fingerId, Vector2 position)
+    private HashSet<int> _invalidHash = new HashSet<int>();
+    // 是否有效的输入，如果按下时在 UI 上则为无效的输入
+    private bool ValidTouch(Touch touch)
     {
-        fingerTouchUp?.Invoke(fingerId, position);
+        if (touch.phase == TouchPhase.Began)
+        {
+            bool isOverUI = TouchUtil.IsPointerOverGameObject(touch.position);
+            if (isOverUI && !_invalidHash.Contains(touch.fingerId))
+            {
+                _invalidHash.Add(touch.fingerId);
+            }
+        }
+
+        return !_invalidHash.Contains(touch.fingerId);
     }
 
-    public void AddTouchClick(FingerTouchClick click)
+    private void ClearInvalid()
     {
-        fingerTouchClick += click;
+        _invalidHash.Clear();
     }
 
-    public void RemoveTouchClick(FingerTouchClick click)
-    {
-        fingerTouchClick -= click;
-    }
-
-    public void NotifyTouchClick(int fingerId, Vector2 position)
-    {
-        fingerTouchClick?.Invoke(fingerId, position);
-    }
-
-    public void AddTouchPress(FingerTouchPress press)
-    {
-        fingerTouchPress += press;
-    }
-
-    public void RemoveTouchPress(FingerTouchPress press)
-    {
-        fingerTouchPress -= press;
-    }
-
-    public void NotifyTouchPress(int fingerId, Vector2 position)
-    {
-        fingerTouchPress?.Invoke(fingerId, position);
-    }
-
-    public void AddBeginDrag(FingerTouchBeginDrag beginDrag)
-    {
-        fingerTouchBeginDrag += beginDrag;
-    }
-
-    public void RemoveBeginDrag(FingerTouchBeginDrag beginDrag)
-    {
-        fingerTouchBeginDrag -= beginDrag;
-    }
-
-    public void NotifyBeginDrag(int fingerId, Vector2 position)
-    {
-        fingerTouchBeginDrag?.Invoke(fingerId, position);
-    }
-
-    public void AddTouchDrag(FingerTouchDrag drag)
-    {
-        fingerTouchDrag += drag;
-    }
-
-    public void RemoveTouchDrag(FingerTouchDrag drag)
-    {
-        fingerTouchDrag -= drag;
-    }
-
-    public void NotifyTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition)
-    {
-        fingerTouchDrag?.Invoke(fingerId, position, deltaPosition);
-    }
-
-    public void AddDragEnd(FingerTouchDragEnd dragEnd)
-    {
-        fingerTouchDragEnd += dragEnd;
-    }
-
-    public void RemoveDragEnd(FingerTouchDragEnd dragEnd)
-    {
-        fingerTouchDragEnd -= dragEnd;
-    }
-
-    public void NotifyDragEnd(int fingerId, Vector2 pisition, Vector2 deltaPosition)
-    {
-        fingerTouchDragEnd?.Invoke(fingerId, pisition, deltaPosition);
-    }
-
-    public void AddBeginPinch(FingerTouchBeginPinch beginPinch)
-    {
-        fingerTouchBeginPinch += beginPinch;
-    }
-
-    public void RemoveBeginPinch(FingerTouchBeginPinch beginPinch)
-    {
-        fingerTouchBeginPinch -= beginPinch;
-    }
-
-    public void NofifyBeginPinch(int fingerId1, int fingerId2, float pinch)
-    {
-        fingerTouchBeginPinch?.Invoke(fingerId1, fingerId2, pinch);
-    }
-
-    public void AddTouchPinch(FingerTouchPinch pinch)
-    {
-        fingerTouchPinch += pinch;
-    }
-
-    public void RemoveTouchPinch(FingerTouchPinch pinch)
-    {
-        fingerTouchPinch -= pinch;
-    }
-
-    public void NotifyTouchPinch(int fingerId1, int fingerId2, float pinch)
-    {
-        fingerTouchPinch?.Invoke(fingerId1, fingerId2, pinch);
-    }
-
-    public void AddEndPinch(FingerTouchPinchEnd endPinch)
-    {
-        fingerTouchPinchEnd += endPinch;
-    }
-
-    public void RemoveEndPinch(FingerTouchPinchEnd endPinch)
-    {
-        fingerTouchPinchEnd -= endPinch;
-    }
-
-    public void NotifyEndPinch(int fingerId1, int fingerId2, float pinch)
-    {
-        fingerTouchPinchEnd?.Invoke(fingerId1, fingerId2, pinch);
-    }
 }

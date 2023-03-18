@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 
-public class GestureStateClick : GestureStateBase
+public class GestureStatePress : GestureStateBase
 {
     private float _enterTime;
-    private float PRESS_MIN_TIME = 0.3f;
-    public GestureStateClick(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Click, fingerGesture)
+    public GestureStatePress(StateMachine stateMachine, FingerGesture fingerGesture) : base(stateMachine, (int)GestureStateEnum.Press, fingerGesture)
     {
     }
 
@@ -12,10 +11,7 @@ public class GestureStateClick : GestureStateBase
     {
         base.OnEnter();
         _enterTime = Time.realtimeSinceStartup;
-        if (_fingerGesture._touch0.phase == TouchPhase.Began)
-        {
-            FingerInputController.GetInstance().fingerTouchDown?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
-        }
+        FingerInputController.GetInstance().fingerTouchBeginLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
     }
 
     public override void OnExecute()
@@ -36,15 +32,12 @@ public class GestureStateClick : GestureStateBase
             }
             else if (_fingerGesture._touch0.phase == TouchPhase.Stationary)
             {
-                if (Time.realtimeSinceStartup - _enterTime >= PRESS_MIN_TIME)
-                {
-                    _stateMachine.ChangeState((int)GestureStateEnum.Press);
-                }
+                float time = Time.realtimeSinceStartup - _enterTime;
+                FingerInputController.GetInstance().fingerTouchLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, time);
             }
             else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
             {
                 FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
-                FingerInputController.GetInstance().fingerTouchClick?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
                 _stateMachine.ChangeState((int)GestureStateEnum.None);
             }
         }
@@ -52,5 +45,11 @@ public class GestureStateClick : GestureStateBase
         {
             _stateMachine.ChangeState((int)GestureStateEnum.Pinch);
         }
+    }
+
+    public override void OnExit()
+    {
+        base.OnExit();
+        FingerInputController.GetInstance().fingerTouchEndLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
     }
 }
