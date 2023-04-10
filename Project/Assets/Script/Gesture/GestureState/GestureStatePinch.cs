@@ -13,7 +13,7 @@ public class GestureStatePinch : GestureStateBase
         base.OnEnter();
 
         _lastPinchDistance = Vector2.Distance(_fingerGesture._touch0.position, _fingerGesture._touch1.position);
-        FingerInputController.GetInstance().fingerTouchBeginPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
+        FingerInputController.GetInstance().fingerTouchBeginPinch?.Invoke(0);
     }
 
     protected override void Touch0Execute()
@@ -31,7 +31,7 @@ public class GestureStatePinch : GestureStateBase
         if (_fingerGesture._touch0.phase == TouchPhase.Moved || _fingerGesture._touch1.phase == TouchPhase.Moved)
         {
             float pinch = Pinch();
-            FingerInputController.GetInstance().fingerTouchPinch?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, pinch);
+            FingerInputController.GetInstance().fingerTouchPinch?.Invoke(pinch);
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled
               || _fingerGesture._touch1.phase == TouchPhase.Ended || _fingerGesture._touch1.phase == TouchPhase.Canceled)
@@ -43,7 +43,7 @@ public class GestureStatePinch : GestureStateBase
     public override void OnExit()
     {
         base.OnExit();
-        FingerInputController.GetInstance().fingerTouchPinchEnd?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch1.fingerId, 0);
+        FingerInputController.GetInstance().fingerTouchPinchEnd?.Invoke(0);
     }
 
     private float Pinch()

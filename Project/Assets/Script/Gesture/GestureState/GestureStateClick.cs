@@ -14,7 +14,7 @@ public class GestureStateClick : GestureStateBase
         _enterTime = Time.realtimeSinceStartup;
         if (_fingerGesture._touch0.phase == TouchPhase.Began)
         {
-            FingerInputController.GetInstance().fingerTouchDown?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+            FingerInputController.GetInstance().fingerTouchDown?.Invoke(_fingerGesture._touch0.position);
         }
     }
 
@@ -38,8 +38,8 @@ public class GestureStateClick : GestureStateBase
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
         {
-            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
-            FingerInputController.GetInstance().fingerTouchClick?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.position);
+            FingerInputController.GetInstance().fingerTouchClick?.Invoke(_fingerGesture._touch0.position);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
     }

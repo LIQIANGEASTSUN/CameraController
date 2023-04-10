@@ -11,7 +11,7 @@ public class GestureStatePress : GestureStateBase
     {
         base.OnEnter();
         _enterTime = Time.realtimeSinceStartup;
-        FingerInputController.GetInstance().fingerTouchBeginLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+        FingerInputController.GetInstance().fingerTouchBeginLongPress?.Invoke(_fingerGesture._touch0.position);
     }
 
     protected override void Touch0Execute()
@@ -28,11 +28,11 @@ public class GestureStatePress : GestureStateBase
         else if (_fingerGesture._touch0.phase == TouchPhase.Stationary)
         {
             float time = Time.realtimeSinceStartup - _enterTime;
-            FingerInputController.GetInstance().fingerTouchLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position, time);
+            FingerInputController.GetInstance().fingerTouchLongPress?.Invoke(_fingerGesture._touch0.position, time);
         }
         else if (_fingerGesture._touch0.phase == TouchPhase.Ended || _fingerGesture._touch0.phase == TouchPhase.Canceled)
         {
-            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+            FingerInputController.GetInstance().fingerTouchUp?.Invoke(_fingerGesture._touch0.position);
             _stateMachine.ChangeState((int)GestureStateEnum.None);
         }
     }
@@ -45,6 +45,6 @@ public class GestureStatePress : GestureStateBase
     public override void OnExit()
     {
         base.OnExit();
-        FingerInputController.GetInstance().fingerTouchEndLongPress?.Invoke(_fingerGesture._touch0.fingerId, _fingerGesture._touch0.position);
+        FingerInputController.GetInstance().fingerTouchEndLongPress?.Invoke(_fingerGesture._touch0.position);
     }
 }

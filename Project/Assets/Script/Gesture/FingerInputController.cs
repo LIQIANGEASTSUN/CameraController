@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public delegate void FingerTouchDown(int fingerId, Vector2 position);
-public delegate void FingerTouchUp(int fingerId, Vector2 position);
-public delegate void FingerTouchClick(int fingerId, Vector2 position);
-public delegate void FingerTouchBeginLongPress(int fingerId, Vector2 position);
-public delegate void FingerTouchLongPress(int fingerId, Vector2 position, float time);
-public delegate void FingerTouchEndLongPress(int fingerId, Vector2 position);
-public delegate void FingerTouchBeginDrag(int fingerId, Vector2 position);
-public delegate void FingerTouchDrag(int fingerId, Vector2 position, Vector2 deltaPosition);
-public delegate void FingerTouchDragEnd(int fingerId, Vector2 pisition, Vector2 deltaPosition);
-public delegate void FingerTouchBeginPinch(int fingerId1, int fingerId2, float pinch);
-public delegate void FingerTouchPinch(int fingerId1, int fingerId2, float pinch);
-public delegate void FingerTouchPinchEnd(int fingerId1, int fingerId2, float pinch);
+public delegate void FingerTouchDown(Vector3 position);
+public delegate void FingerTouchUp(Vector3 position);
+public delegate void FingerTouchClick(Vector3 position);
+public delegate void FingerTouchBeginLongPress(Vector3 position);
+public delegate void FingerTouchLongPress(Vector3 position, float time);
+public delegate void FingerTouchEndLongPress(Vector3 position);
+public delegate void FingerTouchBeginDrag(Vector3 position);
+public delegate void FingerTouchDrag(Vector3 startPosition, Vector3 position, Vector3 deltaPosition);
+public delegate void FingerTouchDragEnd(Vector3 pisition, Vector3 deltaPosition);
+public delegate void FingerTouchBeginPinch(float pinch);
+public delegate void FingerTouchPinch(float pinch);
+public delegate void FingerTouchPinchEnd(float pinch);
 
 public class FingerInputController : SingletonObject<FingerInputController>
 {

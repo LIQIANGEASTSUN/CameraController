@@ -1,68 +1,52 @@
 
-手指按下时在UI 上，则该手指后续的所有操作忽略
 
-单指按下，
-if(touch.phase == down)
-{
-    触发按下
-}
-else if (touch.phase == standy)
-{
-    触发长按
-}
-else if (touch.phase == move)
-{
-    if（长按中）
-        {
-               长按结束
-        }
-    触发拖拽
-}
-else if (touch.phase == end || touch.phase == cancel)
-{
-    触发弹起
-    if （长按中）
-        {
-        长按结束
-    }
-    if (拖拽中)
-        {
-                拖拽结束
-        }
-}
+手势事件
 
-if (！第二指操作)
-{
-    return
-}
+按下
+FingerTouchDown(Vector3 position);
 
-if (拖拽中)
-{
-        return
-}
+弹起
+FingerTouchUp(Vector3 position);
 
-触发弹起
+点击
+FingerTouchClick(Vector3 position);
 
-if (长按中)
-{
-    长按结束
-}
+开始长按
+FingerTouchBeginLongPress(Vector3 position);
 
+长按
+FingerTouchLongPress(Vector3 position, float time);
 
-缩放逻辑
+长按结束
+FingerTouchEndLongPress(Vector3 position);
+
+开始拖拽
+FingerTouchBeginDrag(Vector3 position);
+
+拖拽
+FingerTouchDrag(Vector3 startPosition, Vector3 position, Vector3 deltaPosition);
+
+结束拖拽
+FingerTouchDragEnd(Vector3 pisition, Vector3 deltaPosition);
+
+开始双指缩放
+FingerTouchBeginPinch(float pinch);
+
+双指缩放
+FingerTouchPinch(float pinch);
+
+结束双指缩放
+FingerTouchPinchEnd(float pinch);
 
 
 
-第一指只要是开始拖拽，手指拖拽时停止或一直移动，但是没有弹起，则第二指所有操作无效
-单指按下，长按时，第二指按下/托拽，则退出按下，长按，转为缩放
+当手指按下时如果在UI 上，则忽略该手指后续的所有操作，手指弹起后，再重新按下且不在 UI 上时才开始记录
 
+当单指按下、拖拽、长按等 操作，第二指 按下并移动，则开始 双指缩放
 
+可以用来操作摄像机移动拖拽，点击场景内物体、拖拽物体，长按等
 
-
-
-
-
-
+测试场景，进入 SampleScene， 主摄像机上挂 GestureController.ca 脚本运行即可
 
 
 
