@@ -15,10 +15,12 @@ public class CameraController : SingletonObject<CameraController>
     private bool _lockDrag = false;                // 锁 Drag 操作
     private bool _lockPinch = false;               // 锁 pinch 操作
 
+    //private Tween focusLookTween;
+
     public CameraController()
     {
-        Vector3 min = new Vector3(-50, 5, -50);  // 摄像机最小X轴 -50, 最小Y轴  5, 最小Z轴-50
-        Vector3 max = new Vector3(50, 30, 50);   // 摄像机最大X轴  50, 最大Y轴 30, 最大Z轴 50
+        Vector3 min = new Vector3(-40, 10, -40);  // 摄像机最小X轴 -40, 最小Y轴 10, 最小Z轴-40
+        Vector3 max = new Vector3(40, 30, 40);   // 摄像机最大X轴  40, 最大Y轴 30, 最大Z轴 40
         _rangeBounds.SetMinMax(min, max);
     }
 
@@ -35,7 +37,10 @@ public class CameraController : SingletonObject<CameraController>
     //设置主摄像机的位置
     public void SetPosition(Vector3 position)
     {
-        _camera.transform.position = position;
+        if (_rangeBounds.Contains(position))
+        {
+            _camera.transform.position = position;
+        }
     }
 
     public Vector3 GetPosition()
@@ -87,14 +92,7 @@ public class CameraController : SingletonObject<CameraController>
     {
         if (_lockPinch)
             return;
-        float dist = CameraToDirectionLength(Forward);
-        float currentDistance = dist - pinch * m_pinchSpeed;
-        currentDistance = Mathf.Clamp(currentDistance, ZoomMin, ZoomMax);
-
-        //摄像机中心地面坐标
-        Vector3 zero = GetPosition() + Forward * dist;
-        // 计算摄像机坐标
-        Vector3 position = zero - currentDistance * Forward;
+        Vector3 position = GetPosition() + pinch * m_pinchSpeed * Forward;
         SetPosition(position);
         StopSmooth();
     }
@@ -136,39 +134,39 @@ public class CameraController : SingletonObject<CameraController>
     /// 摄像机聚焦到 targetPos 位置
     /// </summary>
     /// <param name="targetPos">(3D坐标)</param>
-    /// <param name="distance">拉近摄像机后 targetPos 到摄像机的距离为 lockOffset </param>
+    /// <param name="distance">拉近摄像机后摄像机 y 轴的高度为 distance </param>
     public void FocusLookPosition(Vector3 targetPos, float distance = 0, Action callback = null)
     {
-        //屏幕中心世界坐标
-        Vector3 camIntersectionPoint = GetScreenCenterIntersectionPos();
-        targetPos.y = camIntersectionPoint.y;
+        //KillFocusLookTween();
+        targetPos.y = 0;
         Vector3 cameraPosition = GetPosition();
-        Vector3 offset = cameraPosition - camIntersectionPoint;
-        if (Mathf.Abs(distance) <= 1)
-        {
-            targetPos += offset;
-        }
-        else
-        {
-            targetPos += offset.normalized * distance;
-        }
-        targetPos = GetClampToBoundaries(targetPos);
+        Vector3 resultPosition = targetPos - Forward * distance / Mathf.Abs(Forward.y);
 
-        SetPosition(targetPos);
+        SetPosition(resultPosition);
+        callback?.Invoke();
 
-        //bool isSmall = Vector3.Distance(cameraPosition, targetPos) < 1;
+        // 这里没有添加 DoTween 先屏蔽
+        //bool isSmall = Vector3.Distance(cameraPosition, resultPosition) < 1;
         //float duration = isSmall ? .03f : 0.5f;
-        //Tween tween = DOTween.To(() => cameraPosition, (position) =>
+        //focusLookTween = DOTween.To(() => cameraPosition, (position) =>
         //{
         //    SetPosition(position);
-        //}, targetPos, duration);
-        //tween.onComplete += () =>
+        //}, resultPosition, duration);
+        //focusLookTween.onComplete += () =>
         //{
-        //    tween.Kill();
-        //    tween = null;
+        //    KillFocusLookTween();
         //    callback?.Invoke();
         //};
     }
+
+    //private void KillFocusLookTween()
+    //{
+    //    if (null != focusLookTween)
+    //    {
+    //        focusLookTween.Kill();
+    //        focusLookTween = null;
+    //    }
+    //}
 
     public void LateUpdate()
     {
